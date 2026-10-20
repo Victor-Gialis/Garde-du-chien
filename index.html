@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Garde du chien</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f2f5f4;--card:#fff;--tx:#16231f;--mu:#62736d;--ac:#0f766e;--acx:#fff;--bd:#dbe3e0;
+--jc:#2f6fdb;--nc:#c0307a;--onc:#fff;
+--okb:#2e8b57;--nob:#e07a2f;--ok:#1d7a46;--okbg:#ddf1e4;--warn:#a5480b;--warnbg:#fbe8d6}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101816;--card:#1a2522;--tx:#e8f0ed;--mu:#97aaa3;--ac:#4fc3b6;--acx:#07201c;--bd:#2b3a36;
+--jc:#7fa9f2;--nc:#f08fc0;--onc:#0d1117;--okb:#5cc189;--nob:#f0a060;--ok:#7fd8a0;--okbg:#1c3828;--warn:#f2b27e;--warnbg:#41291a}}
+:root[data-theme="dark"]{--bg:#101816;--card:#1a2522;--tx:#e8f0ed;--mu:#97aaa3;--ac:#4fc3b6;--acx:#07201c;--bd:#2b3a36;
+--jc:#7fa9f2;--nc:#f08fc0;--onc:#0d1117;--okb:#5cc189;--nob:#f0a060;--ok:#7fd8a0;--okbg:#1c3828;--warn:#f2b27e;--warnbg:#41291a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:520px;margin:0 auto;padding:22px 16px 48px}
+h1{font-size:22px;margin:0 0 2px}
+h2{font-size:17px;margin:26px 0 10px}
+.sub{color:var(--mu);font-size:14px;margin:0 0 20px}
+.due{display:flex;justify-content:space-between;align-items:baseline;border-bottom:2px solid var(--tx);padding-bottom:10px;margin-bottom:22px}
+.due span{font-size:15px;color:var(--mu)}
+.due b{font-size:38px;line-height:1;font-variant-numeric:tabular-nums}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;margin-bottom:10px;overflow:hidden}
+.pad{padding:14px 16px}
+.m{font-weight:600;text-transform:capitalize}
+.d{color:var(--mu);font-size:13px}
+.r{text-align:right;white-space:nowrap}
+.body{border-top:1px solid var(--bd);padding:8px 16px 14px}
+.row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:15px}
+button,input,select{font:inherit;color:var(--tx)}
+button{border:1px solid var(--bd);background:var(--card);border-radius:10px;padding:8px 14px;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+button.p{background:var(--ac);border-color:var(--ac);color:var(--acx);font-weight:600}
+button.x{border:0;background:none;color:var(--mu);padding:2px 10px;font-size:20px}
+input,select{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:9px 10px}
+.add{display:flex;gap:8px;flex-wrap:wrap}
+.add input,.add select{flex:1;min-width:130px}
+.add button{flex:1 0 100%}
+.tar{color:var(--mu);font-size:13px;text-align:center;margin-top:24px}
+.tar input{width:64px;padding:3px 6px}
+#msg{display:none;background:var(--warnbg);color:var(--warn);border-radius:10px;padding:10px 14px;margin-bottom:16px;font-size:14px}
+
+/* calendrier */
+.calh{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.calh button{padding:4px 12px;font-size:18px;line-height:1.2}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.wd{text-align:center;font-size:12px;color:var(--mu);padding-bottom:2px}
+.grid button.day{aspect-ratio:1;padding:0;border:1px solid transparent;background:none;border-radius:10px;font-size:15px;font-variant-numeric:tabular-nums}
+.grid button.day.j{background:var(--jc);color:var(--onc);font-weight:600}
+.grid button.day.n{background:var(--nc);color:var(--onc);font-weight:600}
+.grid button.day.today{border-color:var(--tx)}
+.grid button.day.sel{outline:2px solid var(--tx);outline-offset:1px}
+.leg{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:13px;color:var(--mu)}
+.sw{display:inline-block;width:12px;height:12px;border-radius:4px;margin-right:6px;vertical-align:-1px}
+
+/* graphique */
+svg.chart{width:100%;height:auto;display:block}
+svg.chart text{fill:var(--tx);font-size:11px;font-family:inherit}
+svg.chart .mu{fill:var(--mu)}
+svg.chart line{stroke:var(--bd)}
+
+/* paiements */
+.pmh{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 16px}
+.st{font-weight:600;padding:6px 14px;border-radius:99px;margin-top:4px}
+.st.no{background:var(--warnbg);border-color:var(--warn);color:var(--warn)}
+.st.ok{background:var(--ok);border-color:var(--ok);color:var(--card)}
+summary.sm{cursor:pointer;padding:8px 16px;font-size:14px;color:var(--mu);border-top:1px solid var(--bd)}
+</style>
+</head>
+<body>
+<main>
+  <h1>Garde du chien</h1>
+  <p class="sub">Calendrier, coûts et paiements</p>
+  <div id="msg" role="alert"></div>
+  <div id="top"></div>
+
+  <form class="add" id="addf">
+    <input type="date" id="nd" required aria-label="Date de la garde">
+    <select id="nt" aria-label="Type de garde"></select>
+    <button class="p" type="submit">Ajouter la garde</button>
+  </form>
+
+  <h2>Calendrier</h2>
+  <div class="card pad" id="cal"></div>
+
+  <h2>Prix par mois</h2>
+  <div class="card pad" id="chart"></div>
+
+  <h2>Paiements</h2>
+  <p class="d" style="margin:-4px 0 10px">Touchez le bouton d’un mois pour indiquer s’il est payé.</p>
+  <div id="list"></div>
+
+  <div class="tar" id="tar"></div>
+</main>
+<script>
+// L’URL et la clé Supabase sont lues dans config.json (même dossier que cette page).
+let SUPABASE_URL = "", SUPABASE_KEY = "";
+
+const $ = id => document.getElementById(id);
+let tarifs = {j: 25, n: 30}, gardes = [], paid = {};
+const openMonths = new Set();
+let cal = {y: new Date().getFullYear(), m: new Date().getMonth()};
+let sel = "";
+
+const eur = n => Number(n).toLocaleString("fr-FR") + " €";
+const pad2 = n => String(n).padStart(2, "0");
+const parse = s => { const [y,m,d] = s.split("-").map(Number); return new Date(y, m-1, d); };
+const todayStr = () => { const t = new Date(); return t.getFullYear() + "-" + pad2(t.getMonth()+1) + "-" + pad2(t.getDate()); };
+const typeLabel = t => t === "n" ? "journée + nuit" : "journée";
+
+function showMsg(t){ const m = $("msg"); m.textContent = t; m.style.display = t ? "block" : "none"; }
+
+async function api(path, opts = {}) {
+  const r = await fetch(SUPABASE_URL + "/rest/v1/" + path, {
+    ...opts,
+    headers: {apikey: SUPABASE_KEY, "Content-Type": "application/json", ...(opts.headers || {})}
+  });
+  const t = await r.text();
+  if (!r.ok) throw new Error(t || r.statusText);
+  return t ? JSON.parse(t) : null;
+}
+
+async function load() {
+  try {
+    const [t, g, p] = await Promise.all([
+      api("tarifs?select=*"), api("gardes?select=*&order=date"), api("paiements?select=*")
+    ]);
+    t.forEach(x => tarifs[x.code] = Number(x.prix));
+    gardes = g;
+    paid = {}; p.forEach(x => paid[x.mois] = x.paye);
+    showMsg("");
+    render();
+  } catch (e) {
+    showMsg("Impossible de charger les données. Vérifiez la connexion, puis rechargez la page.");
+    console.error(e);
+  }
+}
+
+async function run(fn) {
+  try { await fn(); await load(); }
+  catch (e) { showMsg("L’enregistrement a échoué. Réessayez dans un instant."); console.error(e); }
+}
+
+function monthTotals() {
+  const tot = {}, cnt = {};
+  gardes.forEach(g => {
+    const k = g.date.slice(0,7);
+    tot[k] = (tot[k] || 0) + tarifs[g.type];
+    (cnt[k] ||= []).push(g);
+  });
+  return {tot, cnt};
+}
+
+function renderCal() {
+  const {y, m} = cal;
+  const map = {}; gardes.forEach(g => map[g.date] = g.type);
+  const offset = (new Date(y, m, 1).getDay() + 6) % 7;
+  const days = new Date(y, m + 1, 0).getDate();
+  const title = new Date(y, m, 1).toLocaleDateString("fr-FR", {month: "long", year: "numeric"});
+  let cells = ["L","M","M","J","V","S","D"].map(w => `<div class="wd">${w}</div>`).join("");
+  for (let i = 0; i < offset; i++) cells += "<div></div>";
+  for (let d = 1; d <= days; d++) {
+    const ds = `${y}-${pad2(m+1)}-${pad2(d)}`, t = map[ds];
+    const full = parse(ds).toLocaleDateString("fr-FR", {weekday: "long", day: "numeric", month: "long"});
+    const cls = ["day", t || "", ds === todayStr() ? "today" : "", ds === sel ? "sel" : ""].join(" ").trim();
+    cells += `<button type="button" class="${cls}" data-date="${ds}" aria-label="${full}${t ? ", " + typeLabel(t) : ""}">${d}</button>`;
+  }
+  $("cal").innerHTML = `<div class="calh"><button type="button" id="prev" aria-label="Mois précédent">‹</button>
+    <b style="text-transform:capitalize">${title}</b><button type="button" id="next" aria-label="Mois suivant">›</button></div>
+    <div class="grid">${cells}</div>
+    <div class="leg"><span><i class="sw" style="background:var(--jc)"></i>Journée</span><span><i class="sw" style="background:var(--nc)"></i>Journée + nuit</span></div>`;
+  $("prev").onclick = () => { cal = cal.m === 0 ? {y: cal.y-1, m: 11} : {y: cal.y, m: cal.m-1}; renderCal(); };
+  $("next").onclick = () => { cal = cal.m === 11 ? {y: cal.y+1, m: 0} : {y: cal.y, m: cal.m+1}; renderCal(); };
+  $("cal").querySelectorAll("[data-date]").forEach(b => b.onclick = () => { sel = b.dataset.date; $("nd").value = sel; renderCal(); });
+}
+
+function renderChart() {
+  const {tot} = monthTotals();
+  const keys = Object.keys(tot).sort();
+  if (!keys.length) { $("chart").innerHTML = `<p class="d" style="margin:0">Le graphique apparaîtra dès la première garde.</p>`; return; }
+  let [y, m] = keys[0].split("-").map(Number);
+  const [ly, lm] = keys[keys.length-1].split("-").map(Number);
+  let all = [];
+  while (y < ly || (y === ly && m <= lm)) { all.push(`${y}-${pad2(m)}`); m++; if (m > 12) { m = 1; y++; } }
+  all = all.slice(-12);
+  const W = 360, top = 22, plotH = 150, n = all.length, slot = (W - 20) / n, bw = Math.min(44, slot * 0.64);
+  const maxV = Math.max(...all.map(k => tot[k] || 0), 1);
+  let s = `<svg class="chart" viewBox="0 0 ${W} ${top + plotH + 38}" role="img" aria-label="Prix par mois en euros">
+    <line x1="10" x2="${W-10}" y1="${top+plotH}" y2="${top+plotH}"/>`;
+  all.forEach((k, i) => {
+    const v = tot[k] || 0, h = v / maxV * plotH, cx = 10 + (i + 0.5) * slot;
+    const dt = parse(k + "-01"), mo = dt.toLocaleDateString("fr-FR", {month: "short"}).replace(".", "");
+    if (v > 0) s += `<rect x="${cx - bw/2}" y="${top + plotH - h}" width="${bw}" height="${h}" rx="4" style="fill:var(${paid[k] ? "--okb" : "--nob"})"><title>${k} : ${eur(v)} (${paid[k] ? "payé" : "à payer"})</title></rect>
+      <text x="${cx}" y="${top + plotH - h - 6}" text-anchor="middle">${v}</text>`;
+    s += `<text class="mu" x="${cx}" y="${top + plotH + 16}" text-anchor="middle">${mo}</text>`;
+    if (i === 0 || dt.getMonth() === 0) s += `<text class="mu" x="${cx}" y="${top + plotH + 30}" text-anchor="middle">${dt.getFullYear()}</text>`;
+  });
+  s += "</svg>";
+  $("chart").innerHTML = s + `<div class="leg"><span><i class="sw" style="background:var(--okb)"></i>Mois payé</span><span><i class="sw" style="background:var(--nob)"></i>Mois à payer</span><span>Montants en €</span></div>`;
+}
+
+function render() {
+  const {tot, cnt} = monthTotals();
+  const keys = Object.keys(cnt).sort().reverse();
+  const due = keys.filter(k => !paid[k]).reduce((s,k) => s + tot[k], 0);
+
+  $("top").innerHTML = `<div class="due"><span>Reste à payer</span><b>${eur(due)}</b></div>`;
+  $("nt").innerHTML = `<option value="j">Journée (${eur(tarifs.j)})</option><option value="n">Journée + nuit (${eur(tarifs.n)})</option>`;
+  if (!$("nd").value) $("nd").value = todayStr();
+
+  renderCal();
+  renderChart();
+
+  let h = "";
+  keys.forEach(k => {
+    const gs = cnt[k], nj = gs.filter(g => g.type === "j").length, nn = gs.length - nj, ok = !!paid[k];
+    const label = parse(k + "-01").toLocaleDateString("fr-FR", {month: "long", year: "numeric"});
+    h += `<div class="card"><div class="pmh">
+      <div><div class="m">${label}</div><div class="d">${nj} journée${nj > 1 ? "s" : ""}${nn ? `, ${nn} avec nuit` : ""}</div></div>
+      <div class="r"><b>${eur(tot[k])}</b><br><button class="st ${ok ? "ok" : "no"}" data-pay="${k}" aria-pressed="${ok}">${ok ? "Payé ✓" : "À payer"}</button></div></div>
+      <details data-k="${k}" ${openMonths.has(k) ? "open" : ""}><summary class="sm">Voir les gardes</summary><div class="body">`;
+    gs.forEach(g => {
+      const dt = parse(g.date).toLocaleDateString("fr-FR", {weekday: "long", day: "numeric", month: "long"});
+      h += `<div class="row"><span>${dt}<span class="d"> – ${typeLabel(g.type)}</span></span>
+        <span>${eur(tarifs[g.type])}<button class="x" data-del="${g.id}" aria-label="Supprimer la garde du ${dt}">×</button></span></div>`;
+    });
+    h += `</div></details></div>`;
+  });
+  $("list").innerHTML = h || `<p class="d">Aucune garde pour l’instant. Ajoutez la première ci-dessus.</p>`;
+  $("tar").innerHTML = `Tarifs : journée <input type="number" min="0" id="tj" value="${tarifs.j}" aria-label="Tarif journée"> € · journée + nuit <input type="number" min="0" id="tn" value="${tarifs.n}" aria-label="Tarif journée + nuit"> €`;
+
+  $("list").querySelectorAll("details").forEach(d => d.addEventListener("toggle", () => {
+    d.open ? openMonths.add(d.dataset.k) : openMonths.delete(d.dataset.k);
+  }));
+  $("list").querySelectorAll("[data-del]").forEach(b => b.onclick = () => {
+    if (confirm("Supprimer cette garde ?")) run(() => api("gardes?id=eq." + b.dataset.del, {method: "DELETE"}));
+  });
+  $("list").querySelectorAll("[data-pay]").forEach(b => b.onclick = () => {
+    const k = b.dataset.pay;
+    run(() => api("paiements?on_conflict=mois", {
+      method: "POST", headers: {Prefer: "resolution=merge-duplicates,return=minimal"},
+      body: JSON.stringify({mois: k, paye: !paid[k]})
+    }));
+  });
+  [["tj","j"],["tn","n"]].forEach(([id, code]) => $(id).onchange = e => {
+    const v = Number(e.target.value);
+    if (v >= 0) run(() => api("tarifs?code=eq." + code, {method: "PATCH", body: JSON.stringify({prix: v})}));
+  });
+}
+
+$("addf").addEventListener("submit", e => {
+  e.preventDefault();
+  const date = $("nd").value, type = $("nt").value;
+  if (!date) return;
+  cal = {y: Number(date.slice(0,4)), m: Number(date.slice(5,7)) - 1};
+  run(() => api("gardes?on_conflict=date", {
+    method: "POST", headers: {Prefer: "resolution=merge-duplicates,return=minimal"},
+    body: JSON.stringify({date, type})
+  }));
+});
+
+document.addEventListener("visibilitychange", () => { if (!document.hidden && SUPABASE_URL) load(); });
+
+async function init() {
+  $("nd").value = todayStr();
+  renderCal();
+  renderChart();
+  try {
+    const r = await fetch("config.json", {cache: "no-store"});
+    if (!r.ok) throw new Error(r.status);
+    const c = await r.json();
+    SUPABASE_URL = String(c.supabaseUrl || "").replace(/\/$/, "");
+    SUPABASE_KEY = String(c.supabaseKey || "");
+  } catch (e) {
+    showMsg("Le fichier config.json est introuvable ou invalide. Vérifiez qu’il est dans le même dossier que index.html.");
+    return;
+  }
+  if (!SUPABASE_URL || !SUPABASE_KEY || SUPABASE_URL.includes("VOTRE-PROJET") || SUPABASE_KEY.includes("VOTRE_CLE")) {
+    SUPABASE_URL = "";
+    showMsg("Configuration manquante : renseignez supabaseUrl et supabaseKey dans config.json.");
+    return;
+  }
+  load();
+}
+init();
+</script>
+</body>
+</html>
