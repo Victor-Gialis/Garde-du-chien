@@ -2,7 +2,8 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<title>Garde du chien</title>
+<title>Garde de Neïsty</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E🐕%3C/text%3E%3C/svg%3E">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <style>
 :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
@@ -53,6 +54,9 @@ input,select{background:var(--card);border:1px solid var(--bd);border-radius:10p
 .grid button.day.n{background:var(--nc);color:var(--onc);font-weight:600}
 .grid button.day.today{border-color:var(--tx)}
 .grid button.day.sel{outline:2px solid var(--tx);outline-offset:1px}
+.panel{margin-top:14px;padding-top:12px;border-top:1px solid var(--bd)}
+.prow{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.prow select{flex:1;min-width:150px}
 .leg{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:13px;color:var(--mu)}
 .sw{display:inline-block;width:12px;height:12px;border-radius:4px;margin-right:6px;vertical-align:-1px}
 
@@ -72,7 +76,7 @@ summary.sm{cursor:pointer;padding:8px 16px;font-size:14px;color:var(--mu);border
 </head>
 <body>
 <main>
-  <h1>Garde du chien</h1>
+  <h1>🐕 Garde de Neïsty</h1>
   <p class="sub">Calendrier, coûts et paiements</p>
   <div id="msg" role="alert"></div>
   <div id="top"></div>
@@ -169,13 +173,38 @@ function renderCal() {
     const cls = ["day", t || "", ds === todayStr() ? "today" : "", ds === sel ? "sel" : ""].join(" ").trim();
     cells += `<button type="button" class="${cls}" data-date="${ds}" aria-label="${full}${t ? ", " + typeLabel(t) : ""}">${d}</button>`;
   }
+  let panel = "";
+  if (sel && sel.slice(0, 7) === `${y}-${pad2(m+1)}`) {
+    const t = map[sel], full = parse(sel).toLocaleDateString("fr-FR", {weekday: "long", day: "numeric", month: "long"});
+    panel = `<div class="panel"><b>${full.charAt(0).toUpperCase() + full.slice(1)}</b>
+      <div class="d">${t ? "Garde enregistrée : " + typeLabel(t) : "Aucune garde ce jour"}</div>
+      <div class="prow"><select id="pt" aria-label="Type de garde">
+        <option value="j" ${t === "j" ? "selected" : ""}>Journée (${eur(tarifs.j)})</option>
+        <option value="n" ${t === "n" ? "selected" : ""}>Journée + nuit (${eur(tarifs.n)})</option></select>
+        <button type="button" class="p" id="pok">${t ? "Enregistrer" : "Ajouter la garde"}</button>
+        ${t ? `<button type="button" id="pdel">Supprimer</button>` : ""}</div></div>`;
+  }
   $("cal").innerHTML = `<div class="calh"><button type="button" id="prev" aria-label="Mois précédent">‹</button>
     <b style="text-transform:capitalize">${title}</b><button type="button" id="next" aria-label="Mois suivant">›</button></div>
     <div class="grid">${cells}</div>
-    <div class="leg"><span><i class="sw" style="background:var(--jc)"></i>Journée</span><span><i class="sw" style="background:var(--nc)"></i>Journée + nuit</span></div>`;
+    <div class="leg"><span><i class="sw" style="background:var(--jc)"></i>Journée</span><span><i class="sw" style="background:var(--nc)"></i>Journée + nuit</span></div>${panel}`;
   $("prev").onclick = () => { cal = cal.m === 0 ? {y: cal.y-1, m: 11} : {y: cal.y, m: cal.m-1}; renderCal(); };
   $("next").onclick = () => { cal = cal.m === 11 ? {y: cal.y+1, m: 0} : {y: cal.y, m: cal.m+1}; renderCal(); };
-  $("cal").querySelectorAll("[data-date]").forEach(b => b.onclick = () => { sel = b.dataset.date; $("nd").value = sel; renderCal(); });
+  $("cal").querySelectorAll("[data-date]").forEach(b => b.onclick = () => {
+    sel = sel === b.dataset.date ? "" : b.dataset.date;
+    if (sel) $("nd").value = sel;
+    renderCal();
+  });
+  if ($("pok")) $("pok").onclick = () => {
+    const date = sel, type = $("pt").value;
+    run(() => api("gardes?on_conflict=date", {
+      method: "POST", headers: {Prefer: "resolution=merge-duplicates,return=minimal"},
+      body: JSON.stringify({date, type})
+    }));
+  };
+  if ($("pdel")) $("pdel").onclick = () => {
+    if (confirm("Supprimer cette garde ?")) run(() => api("gardes?date=eq." + sel, {method: "DELETE"}));
+  };
 }
 
 function renderChart() {
